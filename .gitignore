@@ -12,3 +12,6 @@ Saved
 *.suo
 *.xcodeproj
 *.xcworkspace
+
+# Tripo3D UE Bridge plugin
+Plugins/Tripo3DUEBridge-UE5.7-Win64/

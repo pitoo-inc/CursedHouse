@@ -166,6 +166,28 @@ bool AEventTrigger::EvaluateCondition(UConditionSourceComponent* ChangedComponen
 		}
 		return false;
 	}
+	// COMMON条件：すべての条件ソースが同じ状態である必要がある（すべて満たされているか、すべて満たされていないか）
+	// 例えば、3つのスイッチがあって、COMMON条件の場合、すべてのスイッチがONのときにイベントがトリガーされる。もし途中で1つだけOFFになったら、全体の条件は満たされなくなる。
+	else if (TriggerData->ConditionLogic == EConditionLogic::COMMON)
+	{
+		for (const FConditionSource& ConditionSource : TriggerData->ConditionSources)
+		{
+			AActor* ConditionSourceActor = ConditionSource.SourceActor.Get();
+			if (!ConditionSourceActor) continue;
+			UConditionSourceComponent* ConditionSourceComp = Cast<UConditionSourceComponent>(ConditionSourceActor->GetComponentByClass(UConditionSourceComponent::StaticClass()));
+			if (ConditionSourceComp)
+			{
+				// もし今回状態が変化したコンポーネントがあれば、その状態を他のすべてのConditionSourceCompにもセットする
+				if (ChangedComponent && ConditionSourceComp != ChangedComponent)
+				{
+					ConditionSourceComp->bConditionMet = ChangedComponent->bConditionMet;
+				}
+			}
+		}
+		return ChangedComponent->bConditionMet;
+	}
+
+
 	// Sequence条件：指定された順番で条件ソースが満たされる必要がある
 	else if (TriggerData->ConditionLogic == EConditionLogic::Sequence)
 	{

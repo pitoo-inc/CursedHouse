@@ -13,6 +13,7 @@ enum class EConditionLogic : uint8
 {
 	AND UMETA(DisplayName = "AND (All Conditions)"),
 	OR UMETA(DisplayName = "OR (Any Conditions)"),
+	COMMON UMETA(DisplayName = "COMMON (Common Conditions)"),
 	Sequence    UMETA(DisplayName = "Sequence (In Order)")
 };
 
