@@ -75,8 +75,9 @@ void AInteractableBase::BeginPlay()
 		}
 	}
 
-	// 初期状態で既にオーバーラップしているアクターをチェック
-	CheckInitialProximityOverlaps();
+	// 初期状態チェックを次のフレームに遅延
+	// レベルブループリントで生成されたアクターの初期化を待つため
+	GetWorldTimerManager().SetTimerForNextTick(this, &AInteractableBase::CheckInitialProximityOverlaps);
 }
 
 void AInteractableBase::CheckInitialProximityOverlaps()
