@@ -74,6 +74,34 @@ void AInteractableBase::BeginPlay()
 			CachedInteractionHUD->UpdateTextPrompt(InteractType);
 		}
 	}
+
+	// 初期状態で既にオーバーラップしているアクターをチェック
+	CheckInitialProximityOverlaps();
+}
+
+void AInteractableBase::CheckInitialProximityOverlaps()
+{
+	if (!ProximitySensor)
+	{
+		return;
+	}
+
+	// 既にオーバーラップしているアクターを取得
+	TArray<AActor*> OverlappingActors;
+	ProximitySensor->GetOverlappingActors(OverlappingActors);
+
+	// プレイヤーのポーンを取得
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	// プレイヤーが既にオーバーラップしているかチェック
+	if (OverlappingActors.Contains(PlayerPawn))
+	{
+		bIsPlayerNearby = true;
+	}
 }
 
 // Called every frame

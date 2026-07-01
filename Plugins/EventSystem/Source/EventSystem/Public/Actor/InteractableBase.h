@@ -80,6 +80,10 @@ protected:
 	UFUNCTION()
 	void OnProximityOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+private:
+	// 初期オーバーラップ状態をチェック
+	void CheckInitialProximityOverlaps();
+
 public:
 	// BPの詳細パネルで設定するタイプ（デフォルトはNone）
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
