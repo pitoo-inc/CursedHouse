@@ -190,7 +190,7 @@ void AInteractableBase::RefreshUIState()
 	}
 
 	// プレイヤーの視線が通っているかチェック
-	if (PC->LineOfSightTo(this, FVector::ZeroVector, false))
+	if (ProximitySensor && PC->LineOfSightTo(this, ProximitySensor->GetComponentLocation(), false))
 	{
 		// 注視されている場合: アクティブ状態
 		if (bIsBeingLookedAt)
