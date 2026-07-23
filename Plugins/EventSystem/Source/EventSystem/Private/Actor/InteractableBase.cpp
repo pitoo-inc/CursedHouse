@@ -10,7 +10,7 @@
 #include "Types/InteractionType.h"
 #include "UI/InteractionHUDWidget.h"
 #include "GameFramework/Pawn.h"
-
+#include "TimerManager.h"
 
 // Sets default values
 AInteractableBase::AInteractableBase()
@@ -73,6 +73,35 @@ void AInteractableBase::BeginPlay()
 		{
 			CachedInteractionHUD->UpdateTextPrompt(InteractType);
 		}
+	}
+
+	// 初期状態チェックを次のフレームに遅延
+	// レベルブループリントで生成されたアクターの初期化を待つため
+	GetWorldTimerManager().SetTimerForNextTick(this, &AInteractableBase::CheckInitialProximityOverlaps);
+}
+
+void AInteractableBase::CheckInitialProximityOverlaps()
+{
+	if (!ProximitySensor)
+	{
+		return;
+	}
+
+	// 既にオーバーラップしているアクターを取得
+	TArray<AActor*> OverlappingActors;
+	ProximitySensor->GetOverlappingActors(OverlappingActors);
+
+	// プレイヤーのポーンを取得
+	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(this, 0);
+	if (!PlayerPawn)
+	{
+		return;
+	}
+
+	// プレイヤーが既にオーバーラップしているかチェック
+	if (OverlappingActors.Contains(PlayerPawn))
+	{
+		bIsPlayerNearby = true;
 	}
 }
 
@@ -161,7 +190,7 @@ void AInteractableBase::RefreshUIState()
 	}
 
 	// プレイヤーの視線が通っているかチェック
-	if (PC->LineOfSightTo(this, FVector::ZeroVector, false))
+	if (ProximitySensor && PC->LineOfSightTo(this, ProximitySensor->GetComponentLocation(), false))
 	{
 		// 注視されている場合: アクティブ状態
 		if (bIsBeingLookedAt)
