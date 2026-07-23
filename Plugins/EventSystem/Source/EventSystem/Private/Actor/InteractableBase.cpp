@@ -10,7 +10,7 @@
 #include "Types/InteractionType.h"
 #include "UI/InteractionHUDWidget.h"
 #include "GameFramework/Pawn.h"
-
+#include "TimerManager.h"
 
 // Sets default values
 AInteractableBase::AInteractableBase()
