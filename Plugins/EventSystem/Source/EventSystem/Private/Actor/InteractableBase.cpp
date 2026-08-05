@@ -162,26 +162,15 @@ void AInteractableBase::ReceiveInteractionUpdate(EInteractionUIState NewState, E
 // UI状態の更新処理
 void AInteractableBase::RefreshUIState()
 {
-	// Widgetコンポーネントが存在しない場合は早期リターン
-	if (!Widget)
+	if (!Widget || !CachedInteractionHUD || !bCanInteract)
 	{
+		if (CachedInteractionHUD)
+		{
+			CachedInteractionHUD->SetUIState(EInteractionUIState::None);
+		}
 		return;
 	}
 
-	// ウィジェットからUWBP_InteractionHUDを取得
-	if (!CachedInteractionHUD)
-	{
-		return;
-	}
-
-	// インタラクション不可の場合はUI非表示
-	if (!bCanInteract)
-	{
-		CachedInteractionHUD->SetUIState(EInteractionUIState::None);
-		return;
-	}
-
-	// プレイヤーコントローラーを取得
 	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
 	if (!PC)
 	{
@@ -189,20 +178,17 @@ void AInteractableBase::RefreshUIState()
 		return;
 	}
 
-	// プレイヤーの視線が通っているかチェック
-	if (ProximitySensor && PC->LineOfSightTo(this, ProximitySensor->GetComponentLocation(), false))
+	// ProximitySensor への視線をチェック
+	if (IsProximitySensorVisible(PC))
 	{
-		// 注視されている場合: アクティブ状態
 		if (bIsBeingLookedAt)
 		{
 			CachedInteractionHUD->SetUIState(EInteractionUIState::Active);
 		}
-		// プレイヤーが近くにいる場合: フォーカス状態
 		else if (bIsPlayerNearby)
 		{
 			CachedInteractionHUD->SetUIState(EInteractionUIState::Focus);
 		}
-		// どちらでもない場合: 非表示
 		else
 		{
 			CachedInteractionHUD->SetUIState(EInteractionUIState::None);
@@ -210,7 +196,34 @@ void AInteractableBase::RefreshUIState()
 	}
 	else
 	{
-		// 視線が通っていない場合: 非表示
 		CachedInteractionHUD->SetUIState(EInteractionUIState::None);
 	}
+}
+
+bool AInteractableBase::IsProximitySensorVisible(APlayerController* PC)
+{
+	if (!PC || !PC->PlayerCameraManager || !ProximitySensor)
+	{
+		return false;
+	}
+
+	// カメラ位置から ProximitySensor への視線チェック
+	FVector Start = PC->PlayerCameraManager->GetCameraLocation();
+	FVector End = ProximitySensor->GetComponentLocation();
+
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);  // 自分自身は無視
+	QueryParams.AddIgnoredActor(PC->GetPawn());  // プレイヤーも無視
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		Start,
+		End,
+		ECC_Visibility,
+		QueryParams
+	);
+
+	// 何もヒットしない = 視線が通っている
+	return !bHit;
 }
