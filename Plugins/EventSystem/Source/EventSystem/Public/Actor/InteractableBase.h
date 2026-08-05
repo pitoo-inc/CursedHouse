@@ -96,4 +96,8 @@ public:
 	// UIの状態を更新する関数
 	UFUNCTION(BlueprintCallable, Category = "Interaction|UI")
 	void RefreshUIState();
+
+protected:
+	// ProximitySensor がプレイヤーから見えるかチェック
+	bool IsProximitySensorVisible(APlayerController* PC);
 };
