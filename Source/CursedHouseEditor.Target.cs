@@ -8,8 +8,8 @@ public class CursedHouseEditorTarget : TargetRules
 	public CursedHouseEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V6;
-
-		ExtraModuleNames.AddRange( new string[] { "CursedHouse" } );
+        DefaultBuildSettings = BuildSettingsVersion.V7;
+        IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_8;
+        ExtraModuleNames.AddRange( new string[] { "CursedHouse" } );
 	}
 }
